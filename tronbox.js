@@ -21,14 +21,15 @@ Then, run the migration with:
       network_id: '1'
     },
     shasta: {
-      privateKey: process.env.PRIVATE_KEY_SHASTA,
+      privateKey: 'ee83840452506217fea5c7c812d6b8e5c63e437518aa27a085342c68a9ac6595',
+      // privateKey: process.env.PRIVATE_KEY_SHASTA,
       userFeePercentage: 50,
       feeLimit: 1000 * 1e6,
       fullHost: 'https://api.shasta.trongrid.io',
-      network_id: '2'
+      network_id: '1000'
     },
     nile: {
-      privateKey: process.env.PRIVATE_KEY_NILE,
+      privateKey: 'ee83840452506217fea5c7c812d6b8e5c63e437518aa27a085342c68a9ac6595',
       userFeePercentage: 100,
       feeLimit: 1000 * 1e6,
       fullHost: 'https://nile.trongrid.io',
@@ -36,7 +37,7 @@ Then, run the migration with:
     },
     development: {
       // For tronbox/tre docker image
-      privateKey: '0000000000000000000000000000000000000000000000000000000000000001',
+      privateKey: 'ee83840452506217fea5c7c812d6b8e5c63e437518aa27a085342c68a9ac6595',
       userFeePercentage: 0,
       feeLimit: 1000 * 1e6,
       fullHost: 'http://127.0.0.1:' + port,
@@ -57,3 +58,19 @@ Then, run the migration with:
   //   evmVersion: 'istanbul'
   }
 }
+// module.exports = {
+//   networks: {
+//     shasta: {
+//       privateKey: 'ee83840452506217fea5c7c812d6b8e5c63e437518aa27a085342c68a9ac6595',
+//       userFeePercentage: 100,
+//       feeLimit: 100000000,
+//       fullHost: "https://api.shasta.trongrid.io",
+//       network_id: "*"
+//     },
+//   },
+//   compilers: {
+//     solc: {
+//       version: "0.8.0"
+//     }
+//   }
+// };
