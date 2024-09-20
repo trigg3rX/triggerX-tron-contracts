@@ -2,6 +2,8 @@
   "dependencies": {
     "@layerzerolabs/solidity-examples": "^1.1.0",
     "@openzeppelin/contracts": "^5.0.2",
-    "@openzeppelin/contracts-upgradeable": "^4.7.3"
+    "@openzeppelin/contracts-upgradeable": "^4.7.3",
+    "dotenv": "^16.4.5",
+    "tronweb": "^5.3.2"
   }
 }

@@ -5,40 +5,63 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "./interfaces/ILayerZeroEndpoint.sol";
-import "./interfaces/ILayerZeroReceiver.sol";
 
-
-contract TronLayerZeroSender is Initializable, OwnableUpgradeable, PausableUpgradeable, ILayerZeroReceiver {
+contract TronLayerZeroSender is Initializable, OwnableUpgradeable, PausableUpgradeable {
     ILayerZeroEndpoint public lzEndpoint;
-    uint16 public destChainId;
-    bytes public destAddr;
+    uint32 public destEid;
+    bytes public options;
 
-    function initialize(address _lzEndpoint, uint16 _destChainId, bytes memory _destAddr) public initializer {
+    event MessageSent(string message, uint32 dstEid);
+
+    function initialize(address _lzEndpoint, uint32 _destEid) public initializer {
         __Ownable_init();
         __Pausable_init();
         lzEndpoint = ILayerZeroEndpoint(_lzEndpoint);
-        destChainId = _destChainId;
-        destAddr = _destAddr;
+        destEid = _destEid;
+        // Set default options, can be updated later
+        options = abi.encodePacked(uint16(1), uint256(10000000000)); // version 1, gas amount 200000
     }
 
-    function sendMessage(string calldata _message) external payable {
-        bytes memory payload = abi.encode(_message);
-        lzEndpoint.send{value: msg.value}(destChainId, destAddr, payload, payable(msg.sender), address(0x0), bytes(""));
+    function sendMessage(string memory _message) external payable whenNotPaused {
+        bytes memory encodedMessage = abi.encode(_message);
+        
+        ILayerZeroEndpoint.MessagingFee memory fee = ILayerZeroEndpoint.MessagingFee({
+            nativeFee: msg.value,
+            lzTokenFee: 0
+        });
+
+        lzEndpoint.send{value: msg.value}(
+            destEid,
+            encodedMessage,
+            options,
+            fee,
+            payable(msg.sender)
+        );
+
+        emit MessageSent(_message, destEid);
     }
 
-    function lzReceive(uint16 _srcChainId, bytes memory _srcAddress, uint64 _nonce, bytes memory _payload) external override {
-        require(msg.sender == address(lzEndpoint), "Invalid endpoint caller  ");
-        // Handle received message if needed
+    function setDestination(uint32 _destEid) external onlyOwner {
+        destEid = _destEid;
     }
 
-    function setDestination(uint16 _destChainId, bytes memory _destAddr) external onlyOwner {
-        destChainId = _destChainId;
-
-        destAddr = _destAddr;
+    function setOptions(bytes memory _options) external onlyOwner {
+        options = _options;
     }
 
-    // Function to be able to update the LayerZero endpoint if needed
     function setLzEndpoint(address _lzEndpoint) external onlyOwner {
         lzEndpoint = ILayerZeroEndpoint(_lzEndpoint);
+    }
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    function withdraw() external onlyOwner {
+        payable(owner()).transfer(address(this).balance);
     }
 }
