@@ -1,32 +1,23 @@
-const TronLayerZeroSender = artifacts.require("TronLayerZeroSender");
+const SourceOApp = artifacts.require("SourceOApp");
 
-module.exports = async function(deployer) {
-  try {
-    console.log("Deploying TronLayerZeroSender...");
-    await deployer.deploy(TronLayerZeroSender);
-    const instance = await TronLayerZeroSender.deployed();
+module.exports = async function(deployer, network, accounts) {
+  // Define the endpoint address
+  const endpointAddress = '0x1b356f3030CE0c1eF9D3e1E250Bf0BB11D81b2d1'; // Replace with actual endpoint address
 
-    console.log("TronLayerZeroSender deployed at:", instance.address);
+  // Deploy the contract with the endpoint address as a constructor argument
+  await deployer.deploy(SourceOApp, endpointAddress);
+  
+  // Get the deployed contract instance
+  const sourceOApp = await SourceOApp.deployed();
+  
+  console.log('SourceOApp deployed at:', sourceOApp.address);
+  console.log('Endpoint address used:', endpointAddress);
 
-    // LayerZero Endpoint address for Tron testnet (Nile)
-    // Make sure to replace this with the correct address for your network
-    const lzEndpoint = '0x1b356f3030CE0c1eF9D3e1E250Bf0BB11D81b2d1';
+  const destEid = '40217';
+  const peerAddress = '0x1b356f3030CE0c1eF9D3e1E250Bf0BB11D81b2d1'; // contract add of dest cahin contract (receiver contract add)
+  //I want to use setpeer function of the internal contract inside that i need two variables destEid and peerAddress in bytes32
+  await sourceOApp.setPeer(destEid, bytes32(uint256(uint160(peerAddress))));
 
-    // Destination Endpoint ID (EID)
-    // Replace this with the correct EID for your destination chain
-    // For example, if you're sending to Ethereum Goerli, the EID might be different
-    const destEid = "40217"; // This is an example, replace with the correct EID
+  console.log('Peer set successfully');
 
-    console.log("Initializing TronLayerZeroSender...");
-    await instance.initialize(lzEndpoint, destEid);
-    console.log("TronLayerZeroSender initialized successfully");
-
-    // Optionally, you can set custom options here if needed
-    // const customOptions = '0x...'; // Replace with your custom options
-    // await instance.setOptions(customOptions);
-    // console.log("Custom options set");
-
-  } catch (error) {
-    console.error("Deployment failed:", error);
-  }
 };
