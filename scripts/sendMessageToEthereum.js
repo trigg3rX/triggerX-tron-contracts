@@ -6,16 +6,21 @@ const tronWeb = new TronWeb({
 });
 
 async function sendMessageToEthereum() {
-    const contractAddress = 'TNZL6t9PgMNsEoXWfXiyGbA7nHoEd1xzL7';
+    const contractAddress = 'TTDDUUpv1v1o5jAMc8ztshxMGxTS3AtoUk';
     const contract = await tronWeb.contract().at(contractAddress);
     
     const message = "Hello from Tron!";
-    const feeInSun = 1000000100; // Adjust based on current gas prices
+    const feeInSun = 5000000000; // Adjust based on current gas prices
+    const destEid = '40217';//40161, 40217
 
     try {
-        const transaction = await contract.sendMessage(40217,message).send({
+
+        const est_fee = await contract.quote(destEid,message,false);
+        console.log("Your Estimated fee:", est_fee);
+
+        const transaction = await contract.send(destEid,message).send({
             feeLimit: feeInSun,
-            callValue: 0, // Set this to the amount of TRX you want to send with the transaction
+            callValue: 500, // Set this to the amount of TRX you want to send with the transaction
             shouldPollResponse: true
         });
 
